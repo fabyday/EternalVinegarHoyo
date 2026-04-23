@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    /* 핵심 수정 부분 */
+    "moduleResolution": "Bundler", 
+    "allowImportingTsExtensions": true, // Bundler 모드 사용 시 권장
+    "rewriteRelativeImportExtensions": true,
+    
+    /* baseUrl 대신 rootDir 사용 권장 */
+    "rootDir": ".", 
+    "paths": {
+      "@main/*": ["./src/main/*"],
+      "@renderer/*": ["./src/renderer/*"],
+      "@common/*": ["./src/common/*"]
+    },
+
+    /* 기타 최신 권장 설정 */
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "resolveJsonModule": true
+  }
+}
