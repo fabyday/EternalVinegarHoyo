@@ -13,7 +13,6 @@ export async function initHandler() {
 }
 
 async function initWineIPC() {
-    IPC
     ipcMain.handle(IPC_CHANNELS.WINE.GET_VERSION_LIST.channelName, async (event: Electron.IpcMainInvokeEvent) => {
         // 와인 버전 목록을 가져오는 로직
         return [];
@@ -36,7 +35,7 @@ async function initWineIPC() {
 
 
 async function initAppIPC() {
-    ipcMain.on(IPC_CHANNELS.APP.APP_QUIT.channelName, () => {
+    ipcMain.on(IPC_CHANNELS.APP.QUIT.channelName, () => {
         // TODO: 앱 종료 로직: 앱 종료 전에 필요한 정리 작업이 있다면 여기에 추가
         app.quit();
     });

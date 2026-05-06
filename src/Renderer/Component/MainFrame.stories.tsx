@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { WineeryView } from './MainFrame';
 
 const meta: Meta<typeof WineeryView> = {
-  title: 'Views/WineeryView',
+  title: 'Component/ImageButton',
   component: WineeryView,
   parameters: {
     layout: 'fullscreen',

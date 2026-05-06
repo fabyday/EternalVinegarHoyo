@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { SplashView } from "./SplashPage";
 
-import XTermTerminal from "./Terminal";
 const meta = {
-  component: XTermTerminal,
-} satisfies Meta<typeof XTermTerminal>;
+  component: SplashView,
+} satisfies Meta<typeof SplashView>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
