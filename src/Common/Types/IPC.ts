@@ -110,7 +110,8 @@ export const IPC_CHANNELS = {
   APP,
 } as const;
 
-//
+/////////
+
 type AllDomains = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];
 
 // Flatten complicated Nested Union Types like ... {A} | {B} to  A | B

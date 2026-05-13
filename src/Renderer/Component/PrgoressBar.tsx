@@ -6,6 +6,7 @@ export interface ProgressBarProps extends ProtoComponentProps {
   pregressMinValue: number | string;
   progressMaxMaxValue: number | string;
   descriptionText?: string;
+  
 }
 
 export function ProgressBar({

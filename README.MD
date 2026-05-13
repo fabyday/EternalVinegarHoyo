@@ -2,7 +2,7 @@
   <img src="resouces/bobtongirihoyo_wide.png" height="300">
 </div>
 
-# 밥똥이리오효 
+# 밥똥이리호요 런처
 
 
 
@@ -21,6 +21,9 @@ Release 들어가서 설치
 
 
 ## 신선한 와인과 안주 제공 단체
+
+[Crossover custom]()
+: 내가 만든 크로스오버 커스텀 빌드 와인
 
 [DXMT](https://github.com/3Shain/dxmt)
 :Metal Layer를 바로 이용하는 DX12(강함)
