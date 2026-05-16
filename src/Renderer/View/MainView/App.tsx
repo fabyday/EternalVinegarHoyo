@@ -1,49 +1,81 @@
-import React, { useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { useEffect, useMemo, useState } from "react";
+import { createRoot } from "react-dom/client";
 import "../../style/index.css";
+import { IPC_CHANNELS } from "../../../Common/Types/IPC";
+import { RendererViewKey } from "../../Component/MainFrame";
+import { change_renderer_locale, resolve_initial_locale, SupportedLocale } from "../../I18n";
+import { useSystemStore } from "../../Store";
+import { AccentColor, apply_renderer_accent_color, resolve_initial_accent_color } from "../../Theme";
+import { LauncherView } from "./MainView";
 
-const App = () => {
-    const [count, setCount] = useState(0);
+const App: React.FC = () => {
+  const [activeView, setActiveView] = useState<RendererViewKey>("dashboard");
+  const [locale, setLocale] = useState<SupportedLocale>(() => resolve_initial_locale());
+  const [accentColor, setAccentColor] = useState<AccentColor>(() => resolve_initial_accent_color());
+  const isMac = window.BTIH_ENV?.platform === "darwin";
+  const {
+    wineVersions,
+    selectedWineVersionId,
+    installPath,
+    isLoadingWineVersions,
+    lastStatusMessage,
+    loadWineVersions,
+    installWineVersion,
+    selectWineVersion,
+    setInstallPath,
+    subscribeWineStatus,
+  } = useSystemStore();
 
-    return (
-        <div className="flex flex-col h-screen p-6 bg-gray-900 text-white select-none">
-            {/* Header */}
-            <header className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold text-blue-400">MachiUI Framework</h1>
-                <div className="text-sm bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                    v1.0.0-dev
-                </div>
-            </header>
+  useEffect(() => {
+    void loadWineVersions();
+    const unsubscribe = subscribeWineStatus();
 
-            {/* Main Content */}
-            <main className="flex-1 grid grid-cols-2 gap-4">
-                <section className="p-6 bg-gray-800 rounded-xl border border-gray-700 shadow-xl">
-                    <h2 className="text-lg font-semibold mb-4">Core Stats</h2>
-                    <div className="space-y-3">
-                        <p className="text-gray-400">Engine Status: <span className="text-green-400">Running</span></p>
-                        <p className="text-gray-400">Renderer: <span className="text-blue-300">DirectX 12 / Metal</span></p>
-                    </div>
-                </section>
+    return () => {
+      unsubscribe();
+    };
+  }, [loadWineVersions, subscribeWineStatus]);
 
-                <section className="p-6 bg-gray-800 rounded-xl border border-gray-700 shadow-xl flex flex-col items-center justify-center">
-                    <p className="text-sm text-gray-400 mb-2">Counter Test</p>
-                    <div className="text-4xl font-mono font-bold mb-4">{count}</div>
-                    <button
-                        onClick={() => setCount(prev => prev + 1)}
-                        className="btn-primary w-full"
-                    >
-                        Increment
-                    </button>
-                </section>
-            </main>
+  const selectedWineVersion = useMemo(
+    () => wineVersions.find((version) => version.id === selectedWineVersionId),
+    [selectedWineVersionId, wineVersions],
+  );
 
-            {/* Footer */}
-            <footer className="mt-8 text-xs text-gray-500 text-center">
-                &copy; 2026 MachiUI Project - Graphics & 3D Vision Researcher
-            </footer>
-        </div>
-    );
+  const handle_locale_change = (nextLocale: SupportedLocale) => {
+    setLocale(nextLocale);
+    void change_renderer_locale(nextLocale);
+  };
+
+  useEffect(() => {
+    apply_renderer_accent_color(accentColor);
+  }, [accentColor]);
+
+  return (
+    <LauncherView
+      activeView={activeView}
+      statusText={lastStatusMessage}
+      onViewChange={setActiveView}
+      onRefresh={() => void loadWineVersions()}
+      onQuit={() => window.BTIH_API?.send(IPC_CHANNELS.APP.QUIT.channelName, undefined as never)}
+      onMinimize={() => window.BTIH_API?.send(IPC_CHANNELS.APP.MINIMIZE.channelName, undefined as never)}
+      onMaximize={() => window.BTIH_API?.send(IPC_CHANNELS.APP.MAXIMIZE.channelName, undefined as never)}
+      isMac={isMac}
+      locale={locale}
+      accentColor={accentColor}
+      wineVersions={wineVersions}
+      selectedWineVersion={selectedWineVersion}
+      selectedWineVersionId={selectedWineVersionId}
+      installPath={installPath}
+      isLoadingWineVersions={isLoadingWineVersions}
+      onSelectWineVersion={selectWineVersion}
+      onInstallWineVersion={(versionId) => void installWineVersion(versionId)}
+      onInstallPathChange={setInstallPath}
+      onLocaleChange={handle_locale_change}
+      onAccentColorChange={setAccentColor}
+      onResetInstallPath={() => setInstallPath("~/Library/Application Support/BDIH/Wine")}
+    />
+  );
 };
-const container = document.getElementById('root');
+
+const container = document.getElementById("root");
 const root = createRoot(container!);
 root.render(<App />);

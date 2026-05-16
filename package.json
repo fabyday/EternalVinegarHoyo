@@ -5,17 +5,27 @@
   "main": "dist/main/main.js",
   "scripts": {
     "test": "pnpm test:jest",
-    "test:main": "webpack --config src/main/webpack.dev.ts && electron ./dist/main/main.js",
-    "test:renderer": "webpack --config src/renderer/webpack.dev.ts",
-    "build": "webpack --config webpack.config.js",
+    "test:main": "pnpm build && electron .",
+    "test:renderer": "webpack --config src/Renderer/webpack.dev.ts",
+    "build:main": "webpack --config src/Main/webpack.prod.ts",
+    "build:preload": "webpack --config src/Preload/webpack.prod.ts",
+    "build:renderer": "webpack --config src/Renderer/webpack.prod.ts",
+    "build": "pnpm build:preload && pnpm build:renderer && pnpm build:main",
+    "pack": "pnpm build && electron-builder --dir",
+    "dist": "pnpm build && electron-builder",
+    "prestart": "pnpm build",
     "start": "electron .",
     "storybook": "storybook dev -c ./src/Renderer/.storybook -p 6006",
-    "build-storybook": "storybook build",
+    "build-storybook": "storybook build -c ./src/Renderer/.storybook",
+    "screenshot": "pnpm build-storybook && node scripts/capture-storybook-screenshot.mjs",
     "test:jest": "jest",
     "test:jest:watch": "jest --watch"
   },
   "keywords": [
     "game",
+    "wine",
+    "launcher",
+    "steam",
     "javascript",
     "hoyoverse",
     "steam",
@@ -23,6 +33,35 @@
   ],
   "author": "fabyday",
   "license": "MIT",
+  "build": {
+    "appId": "com.fabyday.bdih-launcher",
+    "productName": "BDIH Launcher",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.games"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Game"
+    }
+  },
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.2",
@@ -45,6 +84,7 @@
     "babel-jest": "^30.3.0",
     "css-loader": "^7.1.4",
     "electron": "^41.2.0",
+    "electron-builder": "^26.8.1",
     "html-webpack-plugin": "^5.6.6",
     "jest": "^30.3.0",
     "postcss": "^8.5.10",
@@ -74,14 +114,17 @@
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@xterm/addon-fit": "^0.11.0",
     "@xterm/xterm": "^6.0.0",
     "dnd-kit": "^0.0.2",
+    "electron-updater": "^6.8.3",
+    "i18next": "^26.2.0",
     "lucide-react": "^1.8.0",
     "node-pty": "^1.1.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-i18next": "^17.0.8",
     "xterm": "^5.3.0",
-    "xterm-addon-fit": "^0.8.0",
     "zustand": "^5.0.12"
   }
 }

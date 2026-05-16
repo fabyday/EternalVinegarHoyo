@@ -10,9 +10,9 @@
     /* baseUrl 대신 rootDir 사용 권장 */
     "rootDir": ".", 
     "paths": {
-      "@main/*": ["./src/main/*"],
-      "@renderer/*": ["./src/renderer/*"],
-      "@common/*": ["./src/common/*"]
+      "@main/*": ["./src/Main/*"],
+      "@renderer/*": ["./src/Renderer/*"],
+      "@common/*": ["./src/Common/*"]
     },
 
     /* 기타 최신 권장 설정 */

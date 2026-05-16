@@ -1,10 +1,6 @@
-import { config } from "node:process";
-
-module.exports = {
-    plugins: {
-      "@tailwindcss/postcss": {
-        config: "./tailwind.config.js",
-      },
-      autoprefixer: {},
-    },
-  };
+export default {
+  plugins: {
+    "@tailwindcss/postcss": {},
+    autoprefixer: {},
+  },
+};

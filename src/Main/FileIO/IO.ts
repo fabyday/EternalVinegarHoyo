@@ -1,30 +1,26 @@
+import { mkdir, readFile, writeFile } from "fs/promises";
+import os from "os";
+import path from "path";
 
+const USER_SETTINGS_PATH = path.join(os.homedir(), ".bdih-launcher", "settings.json");
 
-
-
-export function readConfigFile(path: string): Promise<string> {
-
-
-
-
+async function ensure_parent_directory(filePath: string): Promise<void> {
+  await mkdir(path.dirname(filePath), { recursive: true });
 }
 
-
-
-
-export function writeConfigFile(path: string, data: string): Promise<void> {    
+export async function readConfigFile(filePath: string): Promise<string> {
+  return readFile(filePath, "utf-8");
 }
 
-
-
-
-
-export function readUserSettings(): Promise<string> {
-
+export async function writeConfigFile(filePath: string, data: string): Promise<void> {
+  await ensure_parent_directory(filePath);
+  await writeFile(filePath, data, "utf-8");
 }
 
+export async function readUserSettings(): Promise<string> {
+  return readConfigFile(USER_SETTINGS_PATH);
+}
 
-
-export function writeUserSettings(data: string): Promise<void> {
-    
+export async function writeUserSettings(data: string): Promise<void> {
+  await writeConfigFile(USER_SETTINGS_PATH, data);
 }

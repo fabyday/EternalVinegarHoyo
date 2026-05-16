@@ -1,11 +1,13 @@
 import React from "react";
 import XTermTerminal from "../../Component/Terminal";
 import { createRoot } from "react-dom/client";
+import "../../style/index.css";
+import "../../I18n";
 
 const App: React.FC = () => {
   return (
-    <div className="flex flex-col h-screen p-6 bg-gray-900 text-white select-none">
-      <XTermTerminal></XTermTerminal>
+    <div className="flex h-dvh min-h-[600px] flex-col bg-[#0b1020] p-6 text-white">
+      <XTermTerminal height="100%" />
     </div>
   );
 };

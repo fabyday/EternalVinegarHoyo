@@ -36,13 +36,61 @@ export interface WineStatusPayload {
   message?: string;
 }
 
+export type AppUpdateStatus =
+  | "disabled"
+  | "checking"
+  | "available"
+  | "not-available"
+  | "downloading"
+  | "downloaded"
+  | "error";
+
+export interface AppUpdateStatusPayload {
+  status: AppUpdateStatus;
+  message?: string;
+  version?: string;
+  progress?: number;
+  error?: string;
+}
+
+export interface LauncherPreferencePayload {
+  language: string;
+  wineInstallPath: string;
+  gameInstallPath: string;
+  autoCheckUpdates: boolean;
+  closeToTray: boolean;
+}
+
+export type LauncherPreferencePatch = Partial<LauncherPreferencePayload>;
+
+export interface YouTubeLiveStatusRequest {
+  channelId?: string;
+  handle?: string;
+}
+
+export interface YouTubeLiveStatusPayload {
+  isLive: boolean;
+  channelId?: string;
+  checkedAt: string;
+  error?: string;
+}
+
 ///
 
 // APP 섹션 전체의 규격
 export interface AppChannelSchema {
   readonly QUIT: IpcChannelUnit<void>;
+  readonly MINIMIZE: IpcChannelUnit<void>;
+  readonly MAXIMIZE: IpcChannelUnit<void>;
   readonly RESTART: IpcChannelUnit<void>;
   readonly UPDATE: IpcChannelUnit<void>;
+  readonly UPDATE_STATUS: IpcChannelUnit<AppUpdateStatusPayload>;
+  readonly GET_PREFERENCE: IpcChannelUnit<void>;
+  readonly UPDATE_PREFERENCE: IpcChannelUnit<LauncherPreferencePatch>;
+}
+
+export interface YouTubeChannelSchema {
+  readonly GET_LIVE_STATUS: IpcChannelUnit<YouTubeLiveStatusRequest>;
 }
 
 // 2. 요청/응답 페이로드 타입
@@ -91,6 +139,18 @@ export const APP = {
     direction: "RENDERER_TO_MAIN",
     payload: {} as never,
   },
+  MINIMIZE: {
+    channelName: "app:minimize",
+    direction: "RENDERER_TO_MAIN",
+    method: "send",
+    payload: {} as never,
+  },
+  MAXIMIZE: {
+    channelName: "app:maximize",
+    direction: "RENDERER_TO_MAIN",
+    method: "send",
+    payload: {} as never,
+  },
   RESTART: {
     channelName: "app:restart",
     direction: "RENDERER_TO_MAIN",
@@ -103,11 +163,39 @@ export const APP = {
     method: "send",
     payload: {} as never,
   },
+  UPDATE_STATUS: {
+    channelName: "app:update-status",
+    direction: "MAIN_TO_RENDERER",
+    method: "on",
+    payload: {} as AppUpdateStatusPayload,
+  },
+  GET_PREFERENCE: {
+    channelName: "app:get-preference",
+    direction: "RENDERER_TO_MAIN",
+    method: "invoke",
+    payload: {} as never,
+  },
+  UPDATE_PREFERENCE: {
+    channelName: "app:update-preference",
+    direction: "RENDERER_TO_MAIN",
+    method: "invoke",
+    payload: {} as LauncherPreferencePatch,
+  },
+} as const;
+
+export const YOUTUBE = {
+  GET_LIVE_STATUS: {
+    channelName: "youtube:get-live-status",
+    direction: "RENDERER_TO_MAIN",
+    method: "invoke",
+    payload: {} as YouTubeLiveStatusRequest,
+  },
 } as const;
 
 export const IPC_CHANNELS = {
   WINE,
   APP,
+  YOUTUBE,
 } as const;
 
 /////////

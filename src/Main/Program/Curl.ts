@@ -1,4 +1,7 @@
 import { spawn } from "child_process";
+import { logManager } from "../Manager/LogManager";
+
+const logger = logManager.createLogger({ file: "wine", source: "download" });
 
 interface CurlCallback {
     onStart: () => void;
@@ -57,13 +60,13 @@ export function downloadByCurl(url: string, args: CurlArgs, progressCallback: Cu
         if (code === 0) {
             progressCallback.onEnd(true);
         } else {
-            console.error(`Curl failed with code ${code}`);
+            logger.error(`Curl failed with code ${code}`);
             progressCallback.onEnd(false);
         }
     });
 
     curl.on("error", (err) => {
-        console.error("Spawn error:", err);
+        logger.error("Spawn error:", err);
         progressCallback.onEnd(false);
     });
 

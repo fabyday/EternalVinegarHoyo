@@ -1,0 +1,66 @@
+import React from "react";
+import { InstallStatus } from "../../Common/Types/Wine";
+import i18n from "../I18n/I18n";
+
+export type StatusTone = "neutral" | "info" | "success" | "warning" | "danger";
+
+export interface StatusBadgeProps {
+  label: string;
+  tone?: StatusTone;
+  className?: string;
+}
+
+const TONE_CLASS_MAP: Record<StatusTone, string> = {
+  neutral: "border-white/10 bg-white/5 text-slate-300",
+  info: "border-sky-400/25 bg-sky-400/10 text-sky-200",
+  success: "border-emerald-400/25 bg-emerald-400/10 text-emerald-200",
+  warning: "border-amber-400/25 bg-amber-400/10 text-amber-200",
+  danger: "border-red-400/25 bg-red-400/10 text-red-200",
+};
+
+export function tone_from_status(status: InstallStatus): StatusTone {
+  if (status === "installed" || status === "completed") {
+    return "success";
+  }
+
+  if (status === "downloading" || status === "installing" || status === "extracting") {
+    return "info";
+  }
+
+  if (status === "error") {
+    return "danger";
+  }
+
+  if (status === "available") {
+    return "warning";
+  }
+
+  return "neutral";
+}
+
+type Translate = (key: string) => string;
+
+export function label_from_status(status: InstallStatus, translate: Translate = i18n.t.bind(i18n)): string {
+  const keyMap: Record<InstallStatus, string> = {
+    idle: "status.idle",
+    available: "status.available",
+    downloading: "status.downloading",
+    installing: "status.installing",
+    extracting: "status.extracting",
+    installed: "status.installed",
+    completed: "status.completed",
+    error: "status.error",
+  };
+
+  return translate(keyMap[status]);
+}
+
+export function StatusBadge({ label, tone = "neutral", className = "" }: StatusBadgeProps) {
+  return (
+    <span
+      className={`inline-flex h-6 shrink-0 items-center rounded-md border px-2 text-xs font-medium ${TONE_CLASS_MAP[tone]} ${className}`}
+    >
+      {label}
+    </span>
+  );
+}

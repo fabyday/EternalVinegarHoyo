@@ -1,4 +1,4 @@
-import { BTIH_API } from "./preload"; // preload 파일 경로
+import { BTIH_API, BTIH_ENV } from "./preload"; // preload 파일 경로
 
 declare global {
     interface Window {
@@ -6,6 +6,7 @@ declare global {
          * BTIH API - Electron IPC Bridge
          */
         readonly BTIH_API: BTIH_API;
+        readonly BTIH_ENV: BTIH_ENV;
     }
 }
 

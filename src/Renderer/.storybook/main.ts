@@ -1,38 +1,9 @@
 import type { StorybookConfig } from "@storybook/react-webpack5";
-//https://storybook.js.org/addons/@storybook/addon-postcss
-import postcss from "postcss";
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-
 
 const config: StorybookConfig = {
   staticDirs: ["../../../resouces"],
-  stories: [
-    "../**/*.stories.@(js|jsx|ts|tsx|mdx)",
-  ],
-
-  addons: [
-    "@storybook/addon-essentials",
-    "@storybook/addon-webpack5-compiler-swc",
-    "@storybook/addon-docs",
-    {
-      name: "@storybook/addon-postcss",
-      options: {
-        postcssLoaderOptions: {
-          implementation: postcss,
-          postcssOptions: {
-            config: path.resolve(__dirname, '../postcss.config.js'),
-          },
-        },
-      },
-    },
-    // {
-    //   name: '@storybook/addon-styling-webpack',
-
-    // }
-  ],
-
+  stories: ["../Stories/**/*.stories.@(js|jsx|ts|tsx|mdx)"],
+  addons: ["@storybook/addon-essentials", "@storybook/addon-webpack5-compiler-swc", "@storybook/addon-docs"],
   framework: {
     name: "@storybook/react-webpack5",
     options: {
@@ -41,36 +12,43 @@ const config: StorybookConfig = {
       },
     },
   },
+  webpackFinal: async (webpackConfig) => {
+    webpackConfig.module ??= {};
+    webpackConfig.module.rules = (webpackConfig.module.rules ?? []).filter((rule) => {
+      if (!rule || typeof rule !== "object" || !("test" in rule)) {
+        return true;
+      }
+
+      const test = rule.test;
+      return !(test instanceof RegExp && test.test("index.css"));
+    });
+
+    webpackConfig.module.rules.push({
+      test: /\.css$/,
+      use: [
+        "style-loader",
+        {
+          loader: "css-loader",
+          options: {
+            importLoaders: 1,
+          },
+        },
+        {
+          loader: "postcss-loader",
+          options: {
+            postcssOptions: {
+              plugins: {
+                "@tailwindcss/postcss": {},
+                autoprefixer: {},
+              },
+            },
+          },
+        },
+      ],
+    });
+
+    return webpackConfig;
+  },
 };
 
-
-// const config: StorybookConfig = {
-//   // staticDirs : ["../images"],
-//   stories: ["../**/*.mdx", "../**/*.stories.@(js|jsx|mjs|ts|tsx)"],
-
-
-//   addons: ["@storybook/addon-webpack5-compiler-swc", 
-//     "@storybook/addon-essentials",
-//     //   {
-//     //   /**
-//     //    * Fix Storybook issue with PostCSS@8
-//     //    * @see https://github.com/storybookjs/storybook/issues/12668#issuecomment-773958085
-//     //    */
-//     //   name: "@storybook/addon-postcss",
-//     //   options: {
-//     //     postcssLoaderOptions: {
-//     //       implementation: postcss,
-//     //     },
-//     //   },
-//     // },
-//     "@storybook/addon-styling-webpack", "@storybook/react-webpack5"],
-//   framework: {
-//     name: "@storybook/react-webpack5",
-//     options: {
-//       builder: {
-//         useSWC: true,
-//       }
-//     },
-//   },
-// };
 export default config;

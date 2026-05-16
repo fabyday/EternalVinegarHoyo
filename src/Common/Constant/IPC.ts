@@ -1,4 +1,12 @@
-import { AppChannelSchema, WineChannelSchema, WineInstallPayload, WineStatusPayload } from "../Types/IPC";
+import {
+    AppChannelSchema,
+    AppUpdateStatusPayload,
+    LauncherPreferencePatch,
+    WineChannelSchema,
+    WineInstallPayload,
+    WineStatusPayload,
+    YouTubeLiveStatusRequest,
+} from "../Types/IPC";
 
 // 1. 채널명 정의 (String Enum 또는 상수 객체)
 export const WINE = {
@@ -32,6 +40,18 @@ export const APP = {
         direction: 'RENDERER_TO_MAIN',
         payload: {} as never
     },
+    MINIMIZE: {
+        channelName: 'app:minimize',
+        direction: 'RENDERER_TO_MAIN',
+        method: 'send',
+        payload: {} as never
+    },
+    MAXIMIZE: {
+        channelName: 'app:maximize',
+        direction: 'RENDERER_TO_MAIN',
+        method: 'send',
+        payload: {} as never
+    },
     RESTART: {
         channelName: 'app:restart',
         direction: 'RENDERER_TO_MAIN',
@@ -43,12 +63,40 @@ export const APP = {
         direction: 'RENDERER_TO_MAIN',
         method: 'send',
         payload: {} as never
+    },
+    UPDATE_STATUS: {
+        channelName: 'app:update-status',
+        direction: 'MAIN_TO_RENDERER',
+        method: 'on',
+        payload: {} as AppUpdateStatusPayload
+    },
+    GET_PREFERENCE: {
+        channelName: 'app:get-preference',
+        direction: 'RENDERER_TO_MAIN',
+        method: 'invoke',
+        payload: {} as never
+    },
+    UPDATE_PREFERENCE: {
+        channelName: 'app:update-preference',
+        direction: 'RENDERER_TO_MAIN',
+        method: 'invoke',
+        payload: {} as LauncherPreferencePatch
+    }
+} as const;
+
+export const YOUTUBE = {
+    GET_LIVE_STATUS: {
+        channelName: 'youtube:get-live-status',
+        direction: 'RENDERER_TO_MAIN',
+        method: 'invoke',
+        payload: {} as YouTubeLiveStatusRequest
     }
 } as const;
 
 export const IPC_CHANNELS = {
     WINE,
-    APP
+    APP,
+    YOUTUBE
 } as const;
 
 
@@ -71,7 +119,6 @@ export type InvokeChannelNames = {
 
 }[keyof QQS];
 
-type ASA = InvokeChannelNames
 
 // export type SendChannelNames = {
 //     [K in keyof AllDomains]: AllDomains[K] extends { method: "send" } ?

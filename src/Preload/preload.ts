@@ -7,7 +7,6 @@ import {
   PayloadOf,
 } from "../Common/Types/IPC";
 import { ipcRenderer } from "electron";
-import { ipcMain } from "electron/main";
 import { contextBridge } from "electron";
 
 type voidFunctionType = () => void;
@@ -60,6 +59,12 @@ const BTIH_API = {
   },
 };
 
+const BTIH_ENV = {
+  platform: process.platform,
+} as const;
+
 contextBridge.exposeInMainWorld("BTIH_API", BTIH_API);
+contextBridge.exposeInMainWorld("BTIH_ENV", BTIH_ENV);
 
 export type BTIH_API = typeof BTIH_API;
+export type BTIH_ENV = typeof BTIH_ENV;

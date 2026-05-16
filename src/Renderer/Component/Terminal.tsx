@@ -1,68 +1,98 @@
-import React, { useEffect, useRef } from 'react';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
+import React, { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import "@xterm/xterm/css/xterm.css";
 
-// xterm의 기본 CSS를 불러와야 스타일이 깨지지 않습니다.
-// @ts-ignore (이 줄을 추가하여 바로 아래 import의 타입 체크를 강제로 끕니다)
-import 'xterm/css/xterm.css';
-const XTermTerminal: React.FC = () => {
-    const terminalRef = useRef<HTMLDivElement>(null);
-    const xterm = useRef<Terminal | null>(null);
+export interface XTermTerminalProps {
+  className?: string;
+  height?: string | number;
+  welcomeMessage?: string;
+}
 
-    useEffect(() => {
-        if (!terminalRef.current) return;
+const XTermTerminal: React.FC<XTermTerminalProps> = ({
+  className = "",
+  height = "100%",
+  welcomeMessage,
+}) => {
+  const { t, i18n } = useTranslation();
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const xterm = useRef<Terminal | null>(null);
 
-        // 1. 터미널 인스턴스 생성
-        xterm.current = new Terminal({
-            cursorBlink: true,
-            theme: {
-                background: '#1e1e1e',
-                foreground: '#00ff00',
-            },
-            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-            fontSize: 14,
-        });
+  useEffect(() => {
+    const container = terminalRef.current;
 
-        // 2. 크기 조절 애드온 연결
-        const fitAddon = new FitAddon();
-        xterm.current.loadAddon(fitAddon);
+    if (!container) {
+      return;
+    }
 
-        // 3. DOM에 터미널 연결
-        xterm.current.open(terminalRef.current);
-        fitAddon.fit();
+    const terminal = new Terminal({
+      cursorBlink: true,
+      theme: {
+        background: "#0b1020",
+        foreground: "#d1d5db",
+        cursor: "#fb7185",
+        green: "#34d399",
+      },
+      fontFamily: 'Menlo, Monaco, Consolas, "Courier New", monospace',
+      fontSize: 13,
+      lineHeight: 1.25,
+      convertEol: true,
+    });
+    const fitAddon = new FitAddon();
 
-        // 4. 초기 메시지 출력
-        xterm.current.writeln('Welcome to \x1B[1;32mEternal Vinegar Hoyo\x1B[0m Terminal');
-        xterm.current.write('\r\n$ ');
+    terminal.loadAddon(fitAddon);
+    terminal.open(container);
+    requestAnimationFrame(() => safe_fit_terminal(fitAddon));
+    terminal.writeln(`\x1B[1;32m${welcomeMessage ?? t("terminal.defaultWelcome")}\x1B[0m`);
+    terminal.writeln(t("terminal.bridgeReady"));
+    terminal.write("\r\n$ ");
 
-        // 5. 키 입력 이벤트 처리
-        xterm.current.onData((data) => {
-            const code = data.charCodeAt(0);
-            if (code === 13) { // Enter
-                xterm.current?.write('\r\n$ ');
-            } else if (code === 127) { // Backspace
-                // 지우기 로직 (간단하게 구현)
-                xterm.current?.write('\b \b');
-            } else {
-                xterm.current?.write(data);
-            }
-        });
+    const disposable = terminal.onData((data) => {
+      const code = data.charCodeAt(0);
 
-        return () => {
-            xterm.current?.dispose();
-        };
-    }, []);
+      if (code === 13) {
+        terminal.write("\r\n$ ");
+        return;
+      }
 
-    return (
-        <div 
-            ref={terminalRef} 
-            style={{ 
-                width: '100%', 
-                height: '500px', 
-                backgroundColor: '#1e1e1e' 
-            }} 
-        />
-    );
+      if (code === 127) {
+        terminal.write("\b \b");
+        return;
+      }
+
+      terminal.write(data);
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      safe_fit_terminal(fitAddon);
+    });
+    resizeObserver.observe(container);
+    xterm.current = terminal;
+
+    return () => {
+      resizeObserver.disconnect();
+      disposable.dispose();
+      terminal.dispose();
+      xterm.current = null;
+    };
+  }, [i18n.language, t, welcomeMessage]);
+
+  return (
+    <div
+      ref={terminalRef}
+      className={`min-h-0 w-full overflow-hidden rounded-lg border border-white/10 bg-[#0b1020] ${className}`}
+      style={{ height }}
+    />
+  );
 };
+
+function safe_fit_terminal(fitAddon: FitAddon) {
+  try {
+    fitAddon.fit();
+  } catch (error) {
+    console.warn("Failed to fit terminal viewport:", error);
+  }
+}
 
 export default XTermTerminal;
